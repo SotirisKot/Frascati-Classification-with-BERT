@@ -74,13 +74,13 @@ def get_scopus_node_names():
 
 def get_mag_node_names():
     try:
-        with open('my_fos_graph_MAG_nx.p', 'rb') as fout:
+        with open('data/my_fos_graph_MAG_nx.p', 'rb') as fout:
             my_mag_graph = pickle.load(fout)
 
     except FileNotFoundError:
         create_nx_graph_for_mag()
 
-        with open('my_fos_graph_MAG_nx.p', 'rb') as fout:
+        with open('data/my_fos_graph_MAG_nx.p', 'rb') as fout:
             my_mag_graph = pickle.load(fout)
 
 
@@ -122,7 +122,7 @@ def get_scopus_leafs():
             if item != 0:
                 scopus_leafs.add(' '.join(tokenize(item)))
 
-    with open('scopus_leafs.p', 'wb') as fout:
+    with open('data/scopus_leafs.p', 'wb') as fout:
         pickle.dump(scopus_leafs, fout)
 
 
@@ -137,7 +137,7 @@ def get_wos_leafs():
             if item != 0:
                 wos_leafs.add(' '.join(tokenize(item)))
 
-    with open('wos_leafs.p', 'wb') as fout:
+    with open('data/wos_leafs.p', 'wb') as fout:
         pickle.dump(wos_leafs, fout)
 
 
@@ -158,18 +158,18 @@ def get_mag_leafs():
         return leafs
 
     try:
-        with open('my_fos_graph_MAG_nx.p', 'rb') as fout:
+        with open('data/my_fos_graph_MAG_nx.p', 'rb') as fout:
             my_mag_graph = pickle.load(fout)
 
     except FileNotFoundError:
         create_nx_graph_for_mag()
 
-        with open('my_fos_graph_MAG_nx.p', 'rb') as fout:
+        with open('data/my_fos_graph_MAG_nx.p', 'rb') as fout:
             my_mag_graph = pickle.load(fout)
 
     my_mag_leafs = get_leafs(my_mag_graph)
 
-    with open('my_mag_leafs.p', 'wb') as fout:
+    with open('data/my_mag_leafs.p', 'wb') as fout:
         pickle.dump(my_mag_leafs, fout)
 
 
@@ -209,14 +209,14 @@ def parse_fields_of_study_txt():
                                 'citation_count': citationcount,
                                 'create_date': createdate}
 
-    with open('field_of_study_MAG_dict.p', 'wb') as fout:
+    with open('data/field_of_study_MAG_dict.p', 'wb') as fout:
         pickle.dump(fos_dict, fout)
 
 
 def create_nx_graph_for_mag():
     # NOTE you have to run the function parse_fields_of_study_txt first to create a dictionary with the
     # Fields of Study that exist in MAG
-    with open('field_of_study_MAG_dict.p', 'rb') as fin:
+    with open('data/field_of_study_MAG_dict.p', 'rb') as fin:
         fos_dict = pickle.load(fin)
 
     my_fos_graph = Graph()
@@ -259,7 +259,7 @@ def create_nx_graph_for_mag():
 
         my_graph.add_edge(node1, node2)
 
-    with open('my_fos_graph_MAG_nx.p', 'wb') as fout:
+    with open('data/my_fos_graph_MAG_nx.p', 'wb') as fout:
         pickle.dump(my_graph, fout)
 
 
@@ -429,7 +429,7 @@ def call_openaire_api(path_to_my_dois=None,
                 except:
                     continue
 
-        with open('openaire_results_by_doi.p', 'wb') as fout:
+        with open('data/openaire_results_by_doi.p', 'wb') as fout:
             pickle.dump(my_results, fout)
 
     if path_to_my_dois is not None:
@@ -800,7 +800,7 @@ def visualize_graph():
     # this may take some time
     try:
 
-        with open('mag_euroscivoc_levenshtein_nodes.p', 'rb') as fin:
+        with open('data/mag_euroscivoc_levenshtein_nodes.p', 'rb') as fin:
             mag_euroscivoc_levenshtein_nodes = pickle.load(fin)
 
     except FileNotFoundError:
@@ -808,7 +808,7 @@ def visualize_graph():
                                                                               get_euroscivoc_node_names(
                                                                                   'data/directed_eurovoc_tree.p'))
 
-        with open('mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
+        with open('data/mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
             pickle.dump(mag_euroscivoc_levenshtein_nodes, fin)
 
     convert_nx_to_igraph('data/directed_eurovoc_tree.p',
@@ -927,7 +927,7 @@ def parse_mag_dump_and_count_venue_freq():
     for zip_id in tqdm([0, 1, 2, 3, 4, 5, 6, 7, 8]):
         parse_mag_zip_file_for_venues(zip_id)
 
-    with open('fos_to_venue_counter.p', 'wb') as fout:
+    with open('data/fos_to_venue_counter.p', 'wb') as fout:
         pickle.dump(fos_to_venue_counter, fout)
 
     return fos_to_venue_counter
@@ -935,7 +935,7 @@ def parse_mag_dump_and_count_venue_freq():
 
 def get_freq_for_every_euroscivoc_node():
     try:
-        with open('fos_to_venue_counter.p', 'rb') as fout:
+        with open('data/fos_to_venue_counter.p', 'rb') as fout:
             fos_to_venue_counter = pickle.load(fout)
     except FileNotFoundError:
         fos_to_venue_counter = parse_mag_dump_and_count_venue_freq()
@@ -948,14 +948,14 @@ def get_freq_for_every_euroscivoc_node():
         eurosci_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
 
     try:
-        with open('mag_euroscivoc_levenshtein_nodes.p', 'rb') as fout:
+        with open('data/mag_euroscivoc_levenshtein_nodes.p', 'rb') as fout:
             common_nodes = pickle.load(fout)
 
     except FileNotFoundError:
         common_nodes = find_common_nodes_with_levenshtein(get_mag_node_names(),
                                                           get_euroscivoc_node_names('data/directed_eurovoc_tree.p'))
 
-        with open('mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
+        with open('data/mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
             pickle.dump(common_nodes, fin)
 
     new_nodes = {'allergology': ['allergy'],
@@ -1065,7 +1065,7 @@ def get_freq_for_every_euroscivoc_node():
             except KeyError:
                 continue
 
-    with open('euroscivoc_nodes_venue_freqs.p', 'wb') as fout:
+    with open('data/euroscivoc_nodes_venue_freqs.p', 'wb') as fout:
         pickle.dump(euroscivoc_freqs, fout)
 
     return euroscivoc_freqs
@@ -1073,7 +1073,7 @@ def get_freq_for_every_euroscivoc_node():
 
 def get_top_10_venues_for_frascati_nodes():
     try:
-        with open('euroscivoc_nodes_venue_freqs.p', 'rb') as fout:
+        with open('data/euroscivoc_nodes_venue_freqs.p', 'rb') as fout:
             euroscivoc_freqs = pickle.load(fout)
     except FileNotFoundError:
         euroscivoc_freqs = get_freq_for_every_euroscivoc_node()
@@ -1132,7 +1132,7 @@ def get_top_10_venues_for_frascati_nodes():
 
         fos_venues_freqs[node] = count.most_common()[:10]
 
-    with open('fos_top_venues.p', 'wb') as fout:
+    with open('data/fos_top_venues.p', 'wb') as fout:
         pickle.dump(fos_venues_freqs, fout)
 
 
@@ -1146,7 +1146,7 @@ def create_mapping_through_euroscivoc():
 
     try:
 
-        with open('mag_euroscivoc_levenshtein_nodes.p', 'rb') as fin:
+        with open('data/mag_euroscivoc_levenshtein_nodes.p', 'rb') as fin:
             common_nodes = pickle.load(fin)
 
     except FileNotFoundError:
@@ -1154,7 +1154,7 @@ def create_mapping_through_euroscivoc():
                                                           get_euroscivoc_node_names(
                                                               'data/directed_eurovoc_tree.p'))
 
-        with open('mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
+        with open('data/mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
             pickle.dump(common_nodes, fin)
 
     new_nodes = {'allergology': ['allergy'],
@@ -1376,20 +1376,20 @@ def parse_mag_dump():
 
     for zip_id in tqdm([0, 1, 2, 3, 4, 5, 6, 7, 8]):
 
-        path = 'mag_processed_zip_{}/'.format(
+        path = 'data/mag_processed_zip_{}/'.format(
             zip_id)
 
         if not os.path.exists(path):
             os.makedirs(path)
         parse_mag_zip(zip_id, my_mapping, level_2_dict, sub_cat_counter, path)
 
-    with open('counter_data_extracted_from_mag_dump.p', 'wb') as fout:
+    with open('data/counter_data_extracted_from_mag_dump.p', 'wb') as fout:
         pickle.dump(sub_cat_counter, fout)
 
 
 def split_train_dev_test():
 
-    with open('counter_data_extracted_from_mag_dump.p', 'rb') as fout:
+    with open('data/counter_data_extracted_from_mag_dump.p', 'rb') as fout:
         all_data_counter = pickle.load(fout)
 
 
@@ -1503,11 +1503,11 @@ def split_train_dev_test():
         if True in true_false_dev and True in true_false_test and len(train_data) == train_len:
             break
 
-    with open('frascati_train_data.p', 'wb') as fout:
+    with open('data/frascati_train_data.p', 'wb') as fout:
         pickle.dump(train_data, fout)
 
-    with open('frascati_dev_data.p', 'wb') as fout:
+    with open('data/frascati_dev_data.p', 'wb') as fout:
         pickle.dump(dev_data, fout)
 
-    with open('frascati_test_data.p', 'wb') as fout:
+    with open('data/frascati_test_data.p', 'wb') as fout:
         pickle.dump(test_data, fout)
