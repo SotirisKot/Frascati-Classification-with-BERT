@@ -1453,7 +1453,7 @@ def split_train_dev_test():
                         if dev_sub_counter[subcat] >= percentage_on_dev_subcats[subcat]:
                             break
 
-                        dev_sub_counter.update(Counter(dato['fos_level_2']))
+                        dev_sub_counter.update(dato['fos_level_2'])
                         dev_data.append(dato)
                         del my_papers_for_bootstrap[item]
                         break
@@ -1464,7 +1464,7 @@ def split_train_dev_test():
                         if test_sub_counter[subcat] >= percentage_on_test_subcats[subcat]:
                             break
 
-                        test_sub_counter.update(Counter(dato['fos_level_2']))
+                        test_sub_counter.update(dato['fos_level_2'])
                         test_data.append(dato)
                         del my_papers_for_bootstrap[item]
                         break
@@ -1483,7 +1483,7 @@ def split_train_dev_test():
                         if train_sub_counter[subcat] >= percentage_on_train_subcats[subcat][0]:
                             break
 
-                        train_sub_counter.update(Counter(dato['fos_level_2']))
+                        train_sub_counter.update(dato['fos_level_2'])
                         train_data.append(dato)
                         del my_papers_for_bootstrap[item]
                         break
