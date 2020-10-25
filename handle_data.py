@@ -40,7 +40,7 @@ def init_counter():
 
 def get_wos_node_names():
     # TODO add the path to the excel file
-    excel_file = pd.ExcelFile('/mnt/data/sotiris/graph_classification_project/code/Mapping_Scopus_MAG_FOS_WOS.xlsx')
+    excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     wos = excel_file.parse('WOS').fillna(0)
 
     wos_names = set()
@@ -57,7 +57,7 @@ def get_wos_node_names():
 
 def get_scopus_node_names():
     # TODO add the path to the excel file
-    excel_file = pd.ExcelFile('/mnt/data/sotiris/graph_classification_project/code/Mapping_Scopus_MAG_FOS_WOS.xlsx')
+    excel_file = pd.ExcelFile('/data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     scopus = excel_file.parse('Scopus').fillna(0)
 
     scopus_names = set()
@@ -112,7 +112,7 @@ def get_euroscivoc_node_names(euroscivoc_path):
 
 
 def get_scopus_leafs():
-    excel_file = pd.ExcelFile('/mnt/data/sotiris/graph_classification_project/code/Mapping_Scopus_MAG_FOS_WOS.xlsx')
+    excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     scopus = excel_file.parse('Scopus').fillna(0)
 
     scopus_leafs = set()
@@ -127,7 +127,7 @@ def get_scopus_leafs():
 
 
 def get_wos_leafs():
-    excel_file = pd.ExcelFile('/mnt/data/sotiris/graph_classification_project/code/Mapping_Scopus_MAG_FOS_WOS.xlsx')
+    excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     wos = excel_file.parse('WOS').fillna(0)
 
     wos_leafs = set()
