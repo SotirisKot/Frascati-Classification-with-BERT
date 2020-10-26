@@ -39,6 +39,7 @@ def init_counter():
 
 
 def get_wos_node_names():
+    """Parses the excel and gets all the unique web of science nodes from it"""
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     wos = excel_file.parse('WOS').fillna(0)
 
@@ -51,6 +52,7 @@ def get_wos_node_names():
 
 
 def get_scopus_node_names():
+    """Parses the excel and gets all the unique Scopus nodes from it"""
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     scopus = excel_file.parse('Scopus').fillna(0)
 
@@ -67,6 +69,7 @@ def get_scopus_node_names():
 
 
 def get_mag_node_names():
+    """Loads the networkx graph of the MAG topics and gets the unique names"""
     try:
         with open('data/my_fos_graph_MAG_nx.p', 'rb') as fout:
             my_mag_graph = pickle.load(fout)
@@ -95,6 +98,7 @@ def get_mag_node_names():
 
 
 def get_euroscivoc_node_names(euroscivoc_path):
+    """Loads the networkx graph of euroscivoc and gets the unique name from it"""
     with open(euroscivoc_path, 'rb') as fin:
         euroscivoc_tree = pickle.load(fin)
 
@@ -106,6 +110,11 @@ def get_euroscivoc_node_names(euroscivoc_path):
 
 
 def get_scopus_leafs():
+    """
+        Parses the excel and gets all the leafs for Scopus. Scopus has only two levels, so we
+        get all the classes under the second line
+
+    """
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     scopus = excel_file.parse('Scopus').fillna(0)
 
@@ -121,6 +130,10 @@ def get_scopus_leafs():
 
 
 def get_wos_leafs():
+    """
+        Parses the excel and gets all the leafs for WOS. WOS has only two levels, so we
+        get all the classes under the second line
+    """
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     wos = excel_file.parse('WOS-Aggregation').fillna(0)
 
@@ -136,6 +149,8 @@ def get_wos_leafs():
 
 
 def get_mag_leafs():
+    """ Loads the networkx graph of the MAG topics and gets its leafs"""
+
     def get_leafs(my_tree):
         leafs = []
 
@@ -176,8 +191,8 @@ def find_overlapping(leafs_a, leafs_b):
 
 
 def parse_fields_of_study_txt():
+    """Parse all the MAG topics inside FieldsOfStudy.txt and create a dict for them"""
     fos_dict = dict()
-    # TODO add the path to fields of studies
     print('Parsing FieldsOfStudy.txt')
     with open('data/FieldsOfStudy.txt', 'r') as fin:
         for line in tqdm(fin):
@@ -209,8 +224,10 @@ def parse_fields_of_study_txt():
 
 
 def create_nx_graph_for_mag():
-    # NOTE you have to run the function parse_fields_of_study_txt first to create a dictionary with the
-    # Fields of Study that exist in MAG
+    """
+    Creates the networkx graph for the MAG topics. Loads the edges using rdflib.Graph from an nt file
+    and then parses them creating edges on the networkx graph
+    """
     try:
         with open('data/field_of_study_MAG_dict.p', 'rb') as fin:
             fos_dict = pickle.load(fin)
@@ -233,12 +250,10 @@ def create_nx_graph_for_mag():
         node1 = str(edge[1]).split('/')[-1]
         node2 = str(edge[0]).split('/')[-1]
 
-        # if node1 == '142362112' or node2 == '142362112':
-        #     print()
-
         try:
             my_graph.add_node(node_for_adding=node1, node_data=fos_dict[node1])
 
+            # check if the node exists in the dictionary of the MAG topics. We will only add topics that have a name
             my_data = fos_dict[node1]
 
             if my_data['level'] == '0':
@@ -285,6 +300,7 @@ def call_openaire_api(path_to_my_dois=None,
                       path_to_my_nodes_for_searching=None,
                       path_to_euroscivoc_tree=None,
                       my_format='json'):
+    """Can call the openaire api searching publications either through a keyterm in the title, either trough a doi"""
     def search_by_title(my_nodes, my_tree):
         my_results = []
 
@@ -378,6 +394,7 @@ def call_openaire_api(path_to_my_dois=None,
                 except:
                     pass
 
+    # gets as input a list of dois
     def search_by_doi(my_data):
         my_results = []
         for idx, my_doi in tqdm(enumerate(my_data)):
@@ -463,6 +480,7 @@ def call_openaire_api(path_to_my_dois=None,
 
 
 def visualize_graph():
+    """Creates a networkx graph of EuroSciVoc, but in a format that can be loaded to Gephi and be visualized"""
     def convert_nx_to_igraph(euroscivoc_path,
                              wos_eurosci_common,
                              mag_eurosci_common,
@@ -475,6 +493,7 @@ def visualize_graph():
         for node in eurosci_tree.nodes():
             eurosci_tree.node[node]['color'] = 'gray'
 
+        # these nodes where added by relaxing the levenshtein distance and searching by hand in the topics of MAG
         new_mag_nodes = ['allergology',
                          'anatomy and morphology',
                          'animal and dairy science',
@@ -533,6 +552,7 @@ def visualize_graph():
         for n in to_add:
             mag_eurosci_common.add(n)
 
+        # similar euroscivoc nodes with scopus --- based on levenshtein
         to_add_scopus = [('organic geochemistry', 'organic chemistry', 92),
                          ('paediatrics', 'pediatrics', 95),
                          ('archaeology', 'archeology', 95),
@@ -543,6 +563,7 @@ def visualize_graph():
                          ('bioelectrochemistry', 'electrochemistry', 91),
                          ('obstetrics and gynaecology', 'obstetrics and gynecology', 98)]
 
+        # similar euroscivoc nodes with wos --- based on levenshtein
         to_add_wos = [('orthopaedics', 'orthopedics', 96),
                       ('paediatrics', 'pediatrics', 95),
                       ('automation and control systems', 'automation control systems', 93),
@@ -557,6 +578,7 @@ def visualize_graph():
                       ('mining and mineral processing', 'mining mineral processing', 93),
                       ('hepatology', 'hematology', 90)]
 
+        # these are leafs, that exist nowhere
         purple_nodes = ['ethical principles',
                         'plasma physics',
                         'physiotherapy',
@@ -717,6 +739,16 @@ def visualize_graph():
         for node in eurosci_tree.nodes():
             eurosci_tree.node[node]['color'] = 'gray'
 
+        color_dict = {'fos_node': 'gray',
+                      'wos_node': 'blue',
+                      'mag_node': 'yellow',
+                      'scopus_node': 'red',
+                      'wos_and_mag': 'green',
+                      'mag_and_scopus': 'orange',
+                      'wos_and_scopus': 'pink',
+                      'in_all_three': 'white'}
+
+        # the following for loops are based on the above color dict
         blue_nodes = set()
         for node in wos_eurosci_common:
             if node not in mag_node_names and node not in scopus_names:
@@ -752,15 +784,7 @@ def visualize_graph():
             if node in scopus_names and node in wos_names and node in mag_node_names:
                 white_nodes.add(node)
 
-        color_dict = {'fos_node': 'gray',
-                      'wos_node': 'blue',
-                      'mag_node': 'yellow',
-                      'scopus_node': 'red',
-                      'wos_and_mag': 'green',
-                      'mag_and_scopus': 'orange',
-                      'wos_and_scopus': 'pink',
-                      'in_all_three': 'white'}
-
+        # color our nodes
         for node in eurosci_tree.nodes():
             node_name = eurosci_tree.node[node]['node_name']
 
@@ -788,9 +812,9 @@ def visualize_graph():
             if node_name in purple_nodes:
                 eurosci_tree.node[node]['color'] = 'purple'
 
-        nx.write_graphml(eurosci_tree, 'euroscivoc_tree_for_GEPHI.graphml')
+        nx.write_graphml(eurosci_tree, 'data/euroscivoc_tree_for_GEPHI.graphml')
 
-    # get the common
+    # get the common nodes
     wos_euroscivoc_common_nodes = find_overlapping(get_wos_node_names(),
                                                    get_euroscivoc_node_names('data/directed_eurovoc_tree.p'))
     mag_euroscivoc_common_nodes = find_overlapping(get_mag_node_names(),
@@ -820,6 +844,10 @@ def visualize_graph():
 
 
 def color_mag_node(node, tree):
+    """It is called recursively and checks the children of the current node. If they are all available in MAG, then the
+    parents gets colored yellow. The recursion is used, because when we get to a child (which does not belong to MAG),
+    it may has children on each own so we check if can color it.
+    """
     # get its children
     colors_and_children = []
     for ch in tree[node]:
@@ -849,6 +877,12 @@ def color_mag_node(node, tree):
 
 
 def color_every_node(node, tree):
+    """
+    DUPLICATE of color_mag_node --- checks also in MAG, WOS, Scopus
+    It is called recursively and checks the children of the current node. If they are all available, then the
+    parents gets colored yellow. The recursion is used, because when we get to a child (which does belongs nowhere),
+    it may has children on each own so we check if can color it.
+    """
     # get its children
     colors_and_children = []
     for ch in tree[node]:
@@ -882,13 +916,13 @@ def find_node(name, tree):
 
 
 def parse_nodes_to_color_them():
-    # load the tree create by visualize_graph to continue coloring it
+    # load the tree created by visualize_graph to continue coloring it
     try:
-        my_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        my_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     except FileNotFoundError:
         visualize_graph()
-        my_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        my_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     for node in tqdm(my_tree.nodes()):
         if my_tree.node[node]['color'] == 'gray':
@@ -896,6 +930,7 @@ def parse_nodes_to_color_them():
 
 
 def parse_mag_dump_and_count_venue_freq():
+    """Parses the MAG dump and for each Field of Study, counts its venues"""
     def parse_mag_zip_file_for_venues(mag_file_id):
         archive = zipfile.ZipFile(
             "/data/mag_papers_{}.zip".format(mag_file_id), 'r')
@@ -935,6 +970,9 @@ def parse_mag_dump_and_count_venue_freq():
 
 
 def get_freq_for_every_euroscivoc_node():
+    """Parses EuroSciVoc and checks if a node belongs to the Venue counter created by parse_mag_dump_and_count_venue_freq
+    If yes, we get the top 10 venues for it.
+    """
     try:
         with open('data/fos_to_venue_counter.p', 'rb') as fout:
             fos_to_venue_counter = pickle.load(fout)
@@ -942,11 +980,11 @@ def get_freq_for_every_euroscivoc_node():
         fos_to_venue_counter = parse_mag_dump_and_count_venue_freq()
 
     try:
-        eurosci_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        eurosci_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     except FileNotFoundError:
         visualize_graph()
-        eurosci_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        eurosci_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     try:
         with open('data/mag_euroscivoc_levenshtein_nodes.p', 'rb') as fout:
@@ -959,6 +997,7 @@ def get_freq_for_every_euroscivoc_node():
         with open('data/mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
             pickle.dump(common_nodes, fin)
 
+    # these nodes were added by hand, the keys are euroscivoc nodes and the values are MAG nodes
     new_nodes = {'allergology': ['allergy'],
                  'anatomy and morphology': ['anatomy', 'morphology'],
                  'animal and dairy science': ['animal science'],
@@ -1009,6 +1048,7 @@ def get_freq_for_every_euroscivoc_node():
                  'transport planning': ['transportation planning'],
                  'transportation engineering': ['transport engineering']}
 
+    # we search the euroscivoc nodes
     euroscivoc_freqs = dict()
     for node in eurosci_tree.nodes():
 
@@ -1021,6 +1061,8 @@ def get_freq_for_every_euroscivoc_node():
         except KeyError:
             continue
 
+    # these nodes are MAG nodes that are close according to levenshtein distance to euroscivoc nodes. We also search for
+    # them
     for tup in common_nodes:
 
         to_search = ' '.join(tokenize(tup[1]))
@@ -1032,6 +1074,8 @@ def get_freq_for_every_euroscivoc_node():
         except KeyError:
             continue
 
+    # then we search for the manually added nodes
+    # if a euroscivoc node maps to two mag nodes (check the list above), we aggregate the venues of the two nodes
     for key in new_nodes:
 
         my_data = new_nodes[key]
@@ -1073,6 +1117,9 @@ def get_freq_for_every_euroscivoc_node():
 
 
 def get_top_10_venues_for_frascati_nodes():
+    """Same as get_freq_for_every_euroscivoc_node, but now searches only for the frascati nodes and if someone is not
+    available, we get the top venues for it by searching its children
+    """
     try:
         with open('data/euroscivoc_nodes_venue_freqs.p', 'rb') as fout:
             euroscivoc_freqs = pickle.load(fout)
@@ -1080,12 +1127,13 @@ def get_top_10_venues_for_frascati_nodes():
         euroscivoc_freqs = get_freq_for_every_euroscivoc_node()
 
     try:
-        eurosci_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        eurosci_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     except FileNotFoundError:
         visualize_graph()
-        eurosci_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        eurosci_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
+    # get the names of the frascati nodes --- from the two first levels of euroscivoc
     frascati_nodes = set()
     level_1 = [n for n in eurosci_tree['0']]
     for n in eurosci_tree['0']:
@@ -1106,6 +1154,7 @@ def get_top_10_venues_for_frascati_nodes():
         except KeyError:
             continue
 
+    # get the frascati nodes we did not find
     missing_nodes = set(frascati_nodes_names).difference(set(list(fos_venues_freqs.keys())))
 
     for node in missing_nodes:
@@ -1125,6 +1174,8 @@ def get_top_10_venues_for_frascati_nodes():
                 except KeyError:
                     continue
 
+        # all the venues of its children with their counts --- if we have common venues they are aggregated
+        # by the counter
         count = Counter()
         for tup in final_counter:
             counts = tup[0]
@@ -1138,12 +1189,15 @@ def get_top_10_venues_for_frascati_nodes():
 
 
 def create_mapping_through_euroscivoc():
+    """Creates a mapping between the frascati nodes and MAG. If a frascati node does not exist in MAg, we represent it
+    by its children and grandchildren. Then according with this mapping, we search in MAG for data
+    """
     try:
-        my_euroscivoc_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        my_euroscivoc_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     except FileNotFoundError:
         visualize_graph()
-        my_euroscivoc_tree = nx.read_graphml('euroscivoc_tree_for_GEPHI.graphml')
+        my_euroscivoc_tree = nx.read_graphml('data/euroscivoc_tree_for_GEPHI.graphml')
 
     try:
 
@@ -1158,6 +1212,7 @@ def create_mapping_through_euroscivoc():
         with open('data/mag_euroscivoc_levenshtein_nodes.p', 'wb') as fin:
             pickle.dump(common_nodes, fin)
 
+    # the same added manually nodes as before
     new_nodes = {'allergology': ['allergy'],
                  'anatomy and morphology': ['anatomy', 'morphology'],
                  'animal and dairy science': ['animal science'],
@@ -1211,6 +1266,7 @@ def create_mapping_through_euroscivoc():
     for n in common_nodes:
         new_nodes[n[0]] = [n[1]]
 
+    # the mapping we will create...some nodes are already added by hand
     frascati_to_mag = {'electrical engineering electronic engineering information engineering': [],
                        'sociology': [],
                        'materials engineering': [],
@@ -1251,9 +1307,8 @@ def create_mapping_through_euroscivoc():
     for node in frascati_to_mag.keys():
         node_id = [n for n in my_euroscivoc_tree.nodes() if my_euroscivoc_tree.node[n]['node_name'] == node][0]
 
-        # check if in mag
+        # check if the current node is in mag, by checking its color
         focus_color_node = my_euroscivoc_tree.node[node_id]['color']
-
         if focus_color_node == 'yellow' or focus_color_node == 'green' or focus_color_node == 'orange' or focus_color_node == 'white':
 
             try:
@@ -1266,6 +1321,7 @@ def create_mapping_through_euroscivoc():
 
         for child in my_euroscivoc_tree[node_id]:
             color_node = my_euroscivoc_tree.node[child]['color']
+            # if the child belongs to MAG, then we add it to the mapping
             if color_node == 'yellow' or color_node == 'green' or color_node == 'orange' or color_node == 'white':
 
                 try:
@@ -1298,6 +1354,7 @@ def create_mapping_through_euroscivoc():
 
 
 def parse_mag_zip(mag_file_id, my_mapping, level_2_dict, sub_cat_counter, path):
+    """Parses the MAG dump and according to the mapping created from create_mapping_through_euroscivoc, we extract data"""
     archive = zipfile.ZipFile(
         "/data/mag_papers_{}.zip".format(mag_file_id), 'r')
 
@@ -1310,6 +1367,7 @@ def parse_mag_zip(mag_file_id, my_mapping, level_2_dict, sub_cat_counter, path):
 
                 my_json = json.loads(l.strip())
 
+                # we want english publications with abstract and title
                 try:
                     toy = my_json['lang']
                 except KeyError:
@@ -1325,16 +1383,17 @@ def parse_mag_zip(mag_file_id, my_mapping, level_2_dict, sub_cat_counter, path):
 
                 try:
                     toy = my_json['fos']
-                    # with_fos.append(my_json)
                     mappings = []
                     for fos in toy:
                         try:
+                            # check if the MAG fos belongs to our mapping
                             toy_mapping = [my_mapping[' '.join(tokenize(fos))]]
                             for m in toy_mapping:
                                 mappings.append(m)
                         except KeyError:
                             continue
 
+                    # if we have found a match added to our extracted data
                     if mappings:
                         my_json['fos_classes'] = list(set(mappings))
 
@@ -1361,7 +1420,7 @@ def parse_mag_zip(mag_file_id, my_mapping, level_2_dict, sub_cat_counter, path):
 
 
 def parse_mag_dump():
-
+    """Creates the mapping for the extraction of the data and parses the MAG dump"""
     my_mapping = create_mapping_through_euroscivoc()
 
     sub_cat_counter = init_counter()
@@ -1389,7 +1448,9 @@ def parse_mag_dump():
 
 
 def split_train_dev_test():
-
+    """Splits the extracted data to train, dev, test.
+    We want the percentage of data existing in the dev set, to be the same as in the train set.
+    """
     with open('data/counter_data_extracted_from_mag_dump.p', 'rb') as fout:
         all_data_counter = pickle.load(fout)
 
@@ -1488,9 +1549,6 @@ def split_train_dev_test():
                         train_data.append(dato)
                         del my_papers_for_bootstrap[item]
                         break
-
-
-        # pprint(test_sub_counter)
 
         true_false_dev = set()
         true_false_test = set()
