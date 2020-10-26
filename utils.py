@@ -57,7 +57,7 @@ def get_wos_node_names():
 
 def get_scopus_node_names():
     # TODO add the path to the excel file
-    excel_file = pd.ExcelFile('/data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
+    excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     scopus = excel_file.parse('Scopus').fillna(0)
 
     scopus_names = set()
@@ -184,8 +184,9 @@ def find_overlapping(leafs_a, leafs_b):
 def parse_fields_of_study_txt():
     fos_dict = dict()
     # TODO add the path to fields of studies
-    with open('/mnt/data/sotiris/graph_classification_project/code/FieldsOfStudy.txt', 'r') as fin:
-        for line in fin:
+    print('Parsing FieldsOfStudy.txt')
+    with open('data/FieldsOfStudy.txt', 'r') as fin:
+        for line in tqdm(fin):
             parts = line.split('\t')
             fos_id = parts[0]
             rank = parts[1]
@@ -216,18 +217,24 @@ def parse_fields_of_study_txt():
 def create_nx_graph_for_mag():
     # NOTE you have to run the function parse_fields_of_study_txt first to create a dictionary with the
     # Fields of Study that exist in MAG
-    with open('data/field_of_study_MAG_dict.p', 'rb') as fin:
-        fos_dict = pickle.load(fin)
+    try:
+        with open('data/field_of_study_MAG_dict.p', 'rb') as fin:
+            fos_dict = pickle.load(fin)
+    except FileNotFoundError:
+        parse_fields_of_study_txt()
+        with open('data/field_of_study_MAG_dict.p', 'rb') as fin:
+            fos_dict = pickle.load(fin)
 
     my_fos_graph = Graph()
-    my_fos_graph.parse('/mnt/data/sotiris/graph_classification_project/code/FieldOfStudyChildren.nt', format='nt')
+    my_fos_graph.parse('data/FieldOfStudyChildren.nt', format='nt')
 
     my_graph = nx.DiGraph()
 
     my_graph.add_node(node_for_adding='ROOT', node_data='MAG_ROOT')
 
     how_many = 0
-    for edge in my_fos_graph.subject_objects():
+    print('Creating networkx graph of MAG topics')
+    for edge in tqdm(my_fos_graph.subject_objects()):
 
         node1 = str(edge[1]).split('/')[-1]
         node2 = str(edge[0]).split('/')[-1]
