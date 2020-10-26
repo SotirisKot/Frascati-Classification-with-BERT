@@ -33,7 +33,7 @@ def read_progs_pe():
         ret = {
             'success': 1,
             'received': received_data,
-            'results': [fos_infer(publication) for publication in received_data['publications']]
+            'results': [fos_infer_top_k(publication, received_data['how_many']) for publication in received_data['publications']]
         }
 
     except KeyError:
