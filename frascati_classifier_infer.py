@@ -236,8 +236,13 @@ class FOS_model(nn.Module):
         loss = cat_loss + subcat_loss
         return cats, subcats, loss
 
+with open('data/fos_classes_for_api.p', 'rb') as fout:
+    all_classes = pickle.load(fout)
 
-model = FOS_model().to(device)
+with open('data/fos_subclasses_for_api.p', 'rb') as fout:
+    all_subclasses = pickle.load(fout)
+
+model = FOS_model(total_classes=len(all_classes), total_subclasses=len(all_subclasses)).to(device)
 
 
 best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch40_0.96974_0.98241_0.90547_0.85142.pth.tar'
@@ -248,11 +253,7 @@ model.load_state_dict(best_check['model_state_dict'])
 
 model = model.to(device)
 
-with open('data/fos_classes_for_api.p', 'rb') as fout:
-    all_classes = pickle.load(fout)
 
-with open('data/fos_subclasses_for_api.p', 'rb') as fout:
-    all_subclasses = pickle.load(fout)
 
 print(len(all_classes))
 print(len(all_subclasses))
