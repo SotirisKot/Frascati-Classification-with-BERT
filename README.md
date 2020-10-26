@@ -70,3 +70,9 @@ The following steps will create a virtual environment, install the packages need
 - **frascati_classifier_infer.py**: It loads the pretrained Frascati classifier and contains infer functions. For example you can return the top-k most probable Frascati Classes. You can easily load another pretrained Frascati classifier by changing the checkpoint you load. 
 - **train_bert_fos_subcats.py**: It trains and evaluates our Frascati classifier to the train and dev data.
 - **requirements.txt**: It contains the python packages to install
+
+# Calling the API
+A curl example that calls the API
+```
+curl --header "Content-Type: application/json" --request POST --data '{"how_many": 3, "publications": [{"title": "sustainability in construction engineering", "objective": "the concept of sustainability has been expanding to all areas of economic activity, including construction engineering. construction engineering is a complex discipline that involves designing, planning, constructing and managing infrastructures. in this special issue, 27 selected and peer-reviewed papers contribute to sustainable construction by offering technological, economic, social and environmental benefits through a variety of methodologies and tools, including fundamental decision-making models and methods as well as advanced multi-criteria decision-making (mcdm) methods and techniques. the papers are mainly concentrated in five areas: sustainable architecture; construction/reconstruction technology and sustainable construction materials; construction economics, including investments, supply, contracting and costs calculation; infrastructure planning and assessment; project risk perception, analysis and assessment, with an emphasis on sustainability."}]}' some_ip:29925/scibert_fos_api 
+```
