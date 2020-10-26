@@ -125,7 +125,7 @@ def get_wos_leafs():
     wos = excel_file.parse('WOS-Aggregation').fillna(0)
 
     wos_leafs = set()
-    for col in list(wos.columns)[1:5]:
+    for col in list(wos.columns)[1:6]:
 
         for item in wos[col]:
             if item != 0:
