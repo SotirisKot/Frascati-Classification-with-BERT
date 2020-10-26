@@ -45,3 +45,28 @@ For the classes that we were not able to find any data at all, we searched in [W
 # Classifier Architecture
 After the acquisition of data, we can train our classifier, whose architecture can be seen below:
 ![Alt text](./frascati_classifier.svg)
+
+# Installation and Files description
+
+### Installation
+As prerequisites, we only need a system with python3.6 and pip installed.
+
+### Virtual Environment creation, Package Installation and Launching an API
+The following steps will create a virtual environment, install the packages needed and start an API with a pretrained classifier.
+
+- Clone or download the repository
+- Run **create_env_install_packages.sh**, which creates a virtual environment, activates it, installs all the packages in the **requirements.txt** and then deactivates the environment
+- Run **run_api.sh**, which activates the previous created environment and executes **frascati_classifier_api.py**, which launches the API
+
+### Downloading Microsoft Academic Graph, preprocessing it, extracting data and creating train,dev,test splits
+
+- Run **download_and_parse_mag.sh**, which downloads a MAG dump, preprocesses it and then creates train,dev,test data
+
+### Files Description
+
+- **utils.py**: Contains all the utility functions, such as functions that parse the MAG dump, functions that split the data etc.
+- **build_data.py**: Calls the functions from utils.py that parse the MAG dump and split the data.
+- **frascati_classifier_api.py**: Launches the API implemented on Flask and given a publication's title and abstract, returns the Level 1 and Level 2 classes of the Frascati Schema that the classifier assigned.
+- **frascati_classifier_infer.py**: It loads the pretrained Frascati classifier and contains infer functions. For example you can return the top-k most probable Frascati Classes. You can easily load another pretrained Frascati classifier by changing the checkpoint you load. 
+- **train_bert_fos_subcats.py**: It trains and evaluates our Frascati classifier to the train and dev data.
+- **requirements.txt**: It contains the python packages to install
