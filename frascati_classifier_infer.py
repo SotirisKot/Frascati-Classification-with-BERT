@@ -151,10 +151,16 @@ random.seed(my_seed)
 torch.manual_seed(my_seed)
 np.random.seed(my_seed)
 
-device = torch.device("cuda")  # xm.xla_device()
-print(device)
-bert_device = torch.device("cuda")  # xm.xla_device()
-print(bert_device)
+if torch.cuda.is_available():
+    device = torch.device("cuda")  # xm.xla_device()
+    print(device)
+    bert_device = torch.device("cuda")  # xm.xla_device()
+    print(bert_device)
+else:
+    device = torch.device("cpu")  # xm.xla_device()
+    print(device)
+    bert_device = torch.device("cpu")  # xm.xla_device()
+    print(bert_device)
 
 # BERT
 # cache_dir = 'bert-base-uncased'
