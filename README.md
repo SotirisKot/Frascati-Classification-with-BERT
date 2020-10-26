@@ -55,6 +55,7 @@ As prerequisites, we only need a system with python3.6 and pip installed.
 The following steps will create a virtual environment, install the packages needed and start an API with a pretrained classifier.
 
 - Clone or download the repository
+- Untar the file in data/field_of_study_mag.rar (some .py files use its contents)
 - Run **create_env_install_packages.sh**, which creates a virtual environment, activates it, installs all the packages in the **requirements.txt** and then deactivates the environment
 - Run **run_api.sh**, which activates the previous created environment and executes **frascati_classifier_api.py**, which launches the API
 
