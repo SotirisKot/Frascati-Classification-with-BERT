@@ -7,7 +7,7 @@ So given a publication, we want a classifier to decide the Research Area, that t
 For example:
 
 | DOI  | Title | Abstract | Research Area |
-| - | - | - | - |
+| - | --- | - | - |
 | 10.1007/978-3-319-39577-7_14  | Dynamic Load Balancing Techniques for Distributed Complex Event Processing Systems  | International audience; Applying real-time, cost-effective Complex Event processing (CEP) in the cloud has been an important goal in recent years. Distributed Stream Processing Systems (DSPS) have been widely adopted by major computing companies such as Facebook and Twitter for performing scalable event processing in streaming data … | natural sciences/computer and information sciences  |
 
 In the above example, our classifier predicted **natural sciences/computer and information sciences**. Notice that we have also predicted natural sciences and computer and information sciences. This is because the Frascati Classification schema has two levels. The first level consists of 6 high level research areas, listed below:
