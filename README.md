@@ -44,4 +44,4 @@ For the classes that we were not able to find any data at all, we searched in [W
 
 # Classifier Architecture
 After the acquisition of data, we can train our classifier, whose architecture can be seen below:
-
+![Alt text](./frascati_classifier.svg)
