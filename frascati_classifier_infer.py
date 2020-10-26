@@ -240,7 +240,7 @@ class FOS_model(nn.Module):
 model = FOS_model().to(device)
 
 
-best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch40_0.96974_0.98241_0.90547_0.85142.pth'
+best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch40_0.96974_0.98241_0.90547_0.85142.pth.tar'
 
 best_check = torch.load(best_checkpoint_path, map_location=device)
 
