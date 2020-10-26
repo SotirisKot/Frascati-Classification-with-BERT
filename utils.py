@@ -39,24 +39,18 @@ def init_counter():
 
 
 def get_wos_node_names():
-    # TODO add the path to the excel file
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     wos = excel_file.parse('WOS').fillna(0)
 
     wos_names = set()
-    for col in list(wos.columns)[1:4]:
-
-        wos_names.add(' '.join(tokenize(col)))
-
-        for item in wos[col]:
-            if item != 0:
-                wos_names.add(' '.join(tokenize(item)))
+    for item in wos['All Categories']:
+        if item != 0:
+            wos_names.add(' '.join(tokenize(item)))
 
     return wos_names
 
 
 def get_scopus_node_names():
-    # TODO add the path to the excel file
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
     scopus = excel_file.parse('Scopus').fillna(0)
 
@@ -128,10 +122,10 @@ def get_scopus_leafs():
 
 def get_wos_leafs():
     excel_file = pd.ExcelFile('data/Mapping_Scopus_MAG_FOS_WOS.xlsx')
-    wos = excel_file.parse('WOS').fillna(0)
+    wos = excel_file.parse('WOS-Aggregation').fillna(0)
 
     wos_leafs = set()
-    for col in list(wos.columns)[1:4]:
+    for col in list(wos.columns)[1:5]:
 
         for item in wos[col]:
             if item != 0:
