@@ -128,8 +128,8 @@ import torch.nn.functional     as F
 import numpy                   as np
 from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
 from difflib import SequenceMatcher
 from pprint import pprint
 import torch.nn                as nn
