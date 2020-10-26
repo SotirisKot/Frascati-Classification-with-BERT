@@ -315,8 +315,6 @@ def call_openaire_api(path_to_my_dois=None,
                 my_endpoint = 'http://api.openaire.eu/search/publications'
                 payload = {'title': node_name, 'format': my_format}
 
-                # generate a new service ticket every time you call the api=
-
                 r = requests.get(my_endpoint, params=payload)
                 r.encoding = 'utf-8'
                 try:
@@ -391,7 +389,7 @@ def call_openaire_api(path_to_my_dois=None,
                                                'doi': pid})
 
                 # the exception here can be either based json decoding error or to a keyerror
-                except:
+                except (ValueError, KeyError) as e:
                     pass
 
     # gets as input a list of dois
@@ -444,7 +442,7 @@ def call_openaire_api(path_to_my_dois=None,
                                                'doi': my_doi})
 
                 # the exception here can be either based json decoding error or to a keyerror
-                except:
+                except (ValueError, KeyError) as e:
                     continue
 
         with open('data/openaire_results_by_doi.p', 'wb') as fout:
