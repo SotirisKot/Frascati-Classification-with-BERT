@@ -37,7 +37,7 @@ To get data, we utilized [Microsoft Academic Graph (MAG)](https://www.microsoft.
 
 MAG also offers a taxonomy of topics and links each topic to several papers, where each paper is associated with some metadata (title, abstract etc). Our first step to get data from MAG, is to find how many common classes exist between EuroScivoc and MAG. We find common classes by searching with simple string matching and also searching by using Levenshtein distance.
 
-Now, for each Frascati class (the first two levels of EuroSciVoc), we check if it exists in the common classes. If yes, we can simply get data for it. If no, we search in the common classes its children and so on. When we are done creating this mapping, we can simply parse MAG and get the data we need.
+Now, for each Frascati class (the first two levels of EuroSciVoc), we check if it exists in the common classes. If yes, we can simply get data for it. If no, we search its children in the common classes. When we are done creating this mapping, we can simply parse MAG and get the data we need.
 
 ### Web of Science
 For the classes that we were not able to find any data at all, we searched in [Web of Science (WOS)](https://apps.webofknowledge.com/WOS_GeneralSearch_input.do?product=WOS&search_mode=GeneralSearch&SID=C1jwYV7YvUfejTIvh5R&preferencesSaved=).
