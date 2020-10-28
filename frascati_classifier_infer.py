@@ -195,22 +195,65 @@ def tokenize(x):
     return bioclean(x)
 
 
+# class FOS_model(nn.Module):
+#     def __init__(self, hidden_size=100, total_classes=6, total_subclasses=36):
+#         super(FOS_model, self).__init__()
+
+#         self.projection_layer = nn.Linear(2 * 768, hidden_size, bias=False)
+#         # self.projection_layer = nn.Linear(768, hidden_size, bias=False)
+
+#         self.cat_layer = nn.Linear(hidden_size, total_classes, bias=True)
+#         self.subcat_layer1 = nn.Linear(hidden_size + total_classes, hidden_size, bias=True)
+#         self.subcat_layer2 = nn.Linear(hidden_size, total_subclasses, bias=True)
+#         self.criterion = nn.BCELoss()
+
+#     def predict(self, sent_embeds):
+#         sent_embeds = self.projection_layer(sent_embeds)
+#         #####################################################################
+#         cats = torch.sigmoid(self.cat_layer(sent_embeds))
+#         #####################################################################
+#         # subcats             = torch.sigmoid(self.subcat_layer1(sent_embeds))
+#         # subcats             = torch.sigmoid(self.subcat_layer2(torch.cat([subcats, cats], dim=-1)))
+#         subcats = torch.sigmoid(self.subcat_layer1(torch.cat([sent_embeds, cats], dim=-1)))
+#         subcats = torch.sigmoid(self.subcat_layer2(subcats))
+
+#         return cats, subcats
+
+#     def forward(self, sent_embeds, gold_labels, gold_sublabels):
+#         sent_embeds = self.projection_layer(sent_embeds)
+#         #####################################################################
+#         cats = torch.sigmoid(self.cat_layer(sent_embeds))
+#         #####################################################################
+#         # subcats             = torch.sigmoid(self.subcat_layer1(sent_embeds))
+#         # subcats             = torch.sigmoid(self.subcat_layer2(torch.cat([subcats, cats], dim=-1)))
+#         subcats = torch.sigmoid(self.subcat_layer1(torch.cat([sent_embeds, cats], dim=-1)))
+#         subcats = torch.sigmoid(self.subcat_layer2(subcats))
+#         # subcats             = torch.sigmoid(self.subcat_layer1(sent_embeds))
+#         # subcats             = torch.sigmoid(self.subcat_layer2(subcats))
+#         #####################################################################
+#         cat_loss = self.criterion(cats, gold_labels)
+#         subcat_loss = self.criterion(subcats, gold_sublabels)
+#         loss = cat_loss + subcat_loss
+#         return cats, subcats, loss
+
 class FOS_model(nn.Module):
-    def __init__(self, hidden_size=100, total_classes=6, total_subclasses=36):
+    def __init__(self, hidden_size=400, total_classes=6, total_subclasses=36):
         super(FOS_model, self).__init__()
 
         self.projection_layer = nn.Linear(2 * 768, hidden_size, bias=False)
         # self.projection_layer = nn.Linear(768, hidden_size, bias=False)
 
-        self.cat_layer = nn.Linear(hidden_size, total_classes, bias=True)
-        self.subcat_layer1 = nn.Linear(hidden_size + total_classes, hidden_size, bias=True)
-        self.subcat_layer2 = nn.Linear(hidden_size, total_subclasses, bias=True)
+        self.cat_layer   = nn.Linear(hidden_size, hidden_size//2, bias=True)
+        self.cat_layer_2 = nn.Linear(hidden_size//2, total_classes, bias=True)
+
+        self.subcat_layer1 = nn.Linear(hidden_size + total_classes, hidden_size//2, bias=True)
+        self.subcat_layer2 = nn.Linear(hidden_size//2, total_subclasses, bias=True)
         self.criterion = nn.BCELoss()
 
     def predict(self, sent_embeds):
         sent_embeds = self.projection_layer(sent_embeds)
         #####################################################################
-        cats = torch.sigmoid(self.cat_layer(sent_embeds))
+        cats = torch.sigmoid(self.cat_layer_2(F.leaky_relu(self.cat_layer(sent_embeds), negative_slope=0.2)))
         #####################################################################
         # subcats             = torch.sigmoid(self.subcat_layer1(sent_embeds))
         # subcats             = torch.sigmoid(self.subcat_layer2(torch.cat([subcats, cats], dim=-1)))
@@ -222,7 +265,7 @@ class FOS_model(nn.Module):
     def forward(self, sent_embeds, gold_labels, gold_sublabels):
         sent_embeds = self.projection_layer(sent_embeds)
         #####################################################################
-        cats = torch.sigmoid(self.cat_layer(sent_embeds))
+        cats = torch.sigmoid(self.cat_layer_2(F.leaky_relu(self.cat_layer(sent_embeds), negative_slope=0.2)))
         #####################################################################
         # subcats             = torch.sigmoid(self.subcat_layer1(sent_embeds))
         # subcats             = torch.sigmoid(self.subcat_layer2(torch.cat([subcats, cats], dim=-1)))
@@ -235,7 +278,7 @@ class FOS_model(nn.Module):
         subcat_loss = self.criterion(subcats, gold_sublabels)
         loss = cat_loss + subcat_loss
         return cats, subcats, loss
-
+    
 with open('data/fos_classes_for_api.p', 'rb') as fout:
     all_classes = pickle.load(fout)
 
@@ -245,7 +288,7 @@ with open('data/fos_subclasses_for_api.p', 'rb') as fout:
 model = FOS_model(total_classes=len(all_classes), total_subclasses=len(all_subclasses)).to(device)
 
 
-best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch40_0.96974_0.98241_0.90547_0.85142.pth.tar'
+best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch11_0.92223_0.95709_0.79297_0.67011.pth.tar'
 
 best_check = torch.load(best_checkpoint_path, map_location=device)
 
