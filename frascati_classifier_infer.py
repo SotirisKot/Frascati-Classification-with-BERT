@@ -346,7 +346,7 @@ def infer_for_top_k(publication_dict, k):
 
         # prediction_of_second_level = all_subclasses[torch.argmax(subcats_logits).cpu().numpy()]
         return {'level_1_class': [i.split('/')[1] for i in predictions_of_second_level],
-                'level_2_class': [i for i in predictions_of_second_level]
+                'level_2_class': [(all_subclasses[i], str(subcats_logits.squeeze()[i].cpu().item())) for i in order]
                 }
 
 
