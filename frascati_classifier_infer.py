@@ -288,7 +288,7 @@ with open('data/fos_subclasses_for_api.p', 'rb') as fout:
 model = FOS_model(total_classes=len(all_classes), total_subclasses=len(all_subclasses)).to(device)
 
 
-best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch11_0.92223_0.95709_0.79297_0.67011.pth.tar'
+best_checkpoint_path = 'checkpoints/frascati_checkpoints/checkpoint_epoch31_0.93298_0.96743_0.81962_0.72135.pth.tar'
 
 best_check = torch.load(best_checkpoint_path, map_location=device)
 
