@@ -30,10 +30,23 @@ def read_progs_pe():
         received_data = request.get_json()
         app.logger.debug(received_data)
         pprint(received_data)
+        if 'how_many' in received_data and received_data['how_many']:
+            if(
+                type(received_data['how_many']) == int or
+                (type(received_data['how_many']) == str and received_data['how_many'].isnumeric())
+            ):
+                how_many = int(received_data['how_many'])
+            else:
+                how_many = 5
+        else:
+            how_many = 5
         ret = {
             'success': 1,
             'received': received_data,
-            'results': [fos_infer_top_k(publication, received_data['how_many']) for publication in received_data['publications']]
+            'results': [
+                fos_infer_top_k(publication, how_many)
+                for publication in received_data['publications']
+            ]
         }
 
     except KeyError:
