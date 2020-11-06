@@ -58,4 +58,4 @@ def read_progs_pe():
     return jsonify(ret)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=29925, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=29926, debug=False, threaded=True)
