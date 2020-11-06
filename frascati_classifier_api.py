@@ -48,7 +48,6 @@ def read_progs_pe():
                 for publication in received_data['publications']
             ]
         }
-
     except KeyError:
         ret = {
             'success': 0,
