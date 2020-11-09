@@ -31,6 +31,8 @@ def decide(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
     sot_l1 = max(v['Level 2 Classifier Prediction'], key=lambda x: float(x[1]))
     if (float(sot_l1[1]) >= thresh1):
         sot_l1 = sot_l1[0].split('/')[1]
+        reason = 1
+        score = float(sot_l1[1])
     elif (float(sot_l1[1]) >= thresh2):
         sot_l1 = sorted(
             v['Level 2 Classifier Prediction'],
@@ -43,9 +45,12 @@ def decide(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
                 t[0].split('/')[1] for t in sot_l1
             ]
         ).most_common(1)[0][0]
+        reason = 2
+        score = float(sot_l1[1])
     else:
         sot_l1 = ''
-    return sot_l1
+        reason = 3
+    return sot_l1, reason, score
 
 def min_max_normalize(dddd):
     max_ = float(max(dddd, key=lambda x: float(x[1]))[1])
@@ -78,7 +83,7 @@ def do_for_thesh_kmax(thresh1 = 0.5, thresh2 = 0.2, k_val=5, use_normalization=1
         elif(use_normalization == 2):
             v['Level 2 Classifier Prediction'] = sum_div_normalize(v['Level 2 Classifier Prediction'])
         #################################################################
-        sot_l1 = decide(v, thresh1 = thresh1, thresh2 = thresh2, k_val=k_val)
+        sot_l1, reason = decide(v, thresh1 = thresh1, thresh2 = thresh2, k_val=k_val)
         #################################################################
         if (sot_l1 in gold_l1):
             agrees_sotiris_gold += 1
@@ -86,14 +91,26 @@ def do_for_thesh_kmax(thresh1 = 0.5, thresh2 = 0.2, k_val=5, use_normalization=1
     return agrees_sotiris_gold
 
 for k, v in data.items():
-    predicted = decide(v, thresh1=0.33, thresh2=0.0, k_val=5)
+    predicted, reason = decide(v, thresh1=0.33, thresh2=0.0, k_val=5)
     if(predicted not in v['Gold Level 1']):
         if(len(v['Level 2 VenueGraph'])):
             print(k)
-            pprint(v['Level 2 VenueGraph'])
-            pprint(min_max_normalize(v['Level 2 VenueGraph']))
+            pprint(v['Gold Level 1'])
+            pprint(v['Gold Level 2'])
+            # pprint(v['Level 2 VenueGraph'])
+            pprint(sum_div_normalize(v['Level 2 VenueGraph']))
+
+pprint(Counter(fault_reasons))
 
 exit()
+
+fault_reasons = []
+for k, v in data.items():
+    predicted, reason = decide(v, thresh1=0.33, thresh2=0.0, k_val=5)
+    if(predicted not in v['Gold Level 1']):
+        fault_reasons.append(reason)
+
+pprint(Counter(fault_reasons))
 
 best_thres  = -1.0
 best_k      = -1.0
