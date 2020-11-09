@@ -140,7 +140,7 @@ best_score  = -1.0
 fp = open('outs.txt','w')
 
 for k in range(5,6):
-    for thr in range(50,100):
+    for thr in tqdm(range(50,100)):
         for thr2 in range(1,thr):
             agrees_sotiris_gold = do_for_thesh_kmax(thresh1 = float(thr)/100.0, thresh2 = float(thr2)/100.0, k_val=k, use_normalization=-1)
             if(agrees_sotiris_gold>best_score):
