@@ -177,8 +177,9 @@ for k, v in data.items():
     to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
     ###########################################################################################################
 
-pprint(Counter(ttt))
-exit()
+# pprint(Counter(ttt))
+
+# exit()
 
 # sns.set(font_scale=2)
 # df = pd.DataFrame(to_plot, index = [i for i in l1_classes], columns = [i for i in l1_classes])
