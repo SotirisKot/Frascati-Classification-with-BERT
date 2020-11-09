@@ -154,10 +154,10 @@ for k in range(5,6):
                 print(tttt)
             fp.write(
                 ' '.join([
-                    k,
-                    thr,
-                    thr2,
-                    agrees_sotiris_gold,
+                    str(k),
+                    str(thr),
+                    str(thr2),
+                    str(agrees_sotiris_gold),
                     ' '.join(str(reasons[k]) if k in reasons else '0' for k in ks)
                 ]) + '\n'
                 # reasons['Selected a class that surpassed threshold 1 + Gold label found between thresh 1 and thresh 2'],
