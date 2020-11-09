@@ -261,26 +261,30 @@ pprint(Counter(ttt2))
 import plotly.figure_factory as ff
 
 def plot_confusion_matrix(data_to_plot, labels):
-    x = labels
-    y = labels
+    x = []# [t.split('/')[-1] for t in labels]
+    y = []# [t.split('/')[-1] for t in labels]
     z = data_to_plot
     # change each element of z to type string for annotations
-    z_text = [
-        [str(y) for y in x]
-        for x in z
-    ]
+    z_text = [[str(y) for y in x] for x in z]
+    ######################################################################################################
+    hovertext = list()
+    for i in range(len(labels)):
+        hovertext.append(list())
+        for j in range(len(labels)):
+            hovertext[-1].append('gold: {}<br />predicted: {}<br />Z: {}'.format(labels[i], labels[j], z[i][j]))
+    ######################################################################################################
     # set up figure
     fig = ff.create_annotated_heatmap(
         z,
         x=x,
         y=y,
-        annotation_text=z_text,
-        colorscale='Viridis'
+        # annotation_text=z_text,
+        colorscale='Viridis',
+        hoverinfo='text',
+        text=hovertext
     )
     # add title
-    fig.update_layout(
-        title_text='<i><b>Confusion matrix</b></i>'
-    )
+    fig.update_layout(title_text='<i><b>Confusion matrix</b></i>')
     # add custom xaxis title
     fig.add_annotation(
         dict(
