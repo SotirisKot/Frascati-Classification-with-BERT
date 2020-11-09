@@ -134,8 +134,18 @@ for k in range(5,6):
                 best_thres      = thr
                 best_thres2     = thr2
                 best_k          = k
-            print(k, thr, thr2, agrees_sotiris_gold)
-            pprint(get_reasons(thresh1=float(thr)/100.0, thresh2=float(thr2)/100.0, k_val=k))
+            reasons = get_reasons(thresh1=float(thr)/100.0, thresh2=float(thr2)/100.0, k_val=k)
+            print(
+                k,
+                thr,
+                thr2,
+                agrees_sotiris_gold,
+                reasons['Selected a class that surpassed threshold 1 + Gold label found between thresh 1 and thresh 2'],
+                reasons['Selected a class that surpassed threshold 1 + Gold label found with score less than thresh 2'],
+                reasons['Selected a class that surpassed threshold 1 + Gold label not found in predicted classes'],
+                reasons['Selected a class with score between threshold 1 and threshold 2 + Gold label found between thresh 1 and thresh 2'],
+                reasons['Selected a class with score between threshold 1 and threshold 2 + Gold label not found in predicted classes']
+            )
 
 print(best_k)
 print(best_thres)
