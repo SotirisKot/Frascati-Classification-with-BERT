@@ -100,8 +100,6 @@ for k, v in data.items():
             # pprint(v['Level 2 VenueGraph'])
             pprint(sum_div_normalize(v['Level 2 VenueGraph']))
 
-pprint(Counter(fault_reasons))
-
 exit()
 
 fault_reasons = []
