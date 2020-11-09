@@ -27,8 +27,8 @@ for k, v in data.items():
         len(sent_tokenize(v['abstract']))>5
         and
         len(v['Gold Level 1']) == 1
-        # and
-        # len(v['Gold Level 2']) == 1
+        and
+        len(v['Gold Level 2']) == 1
     ):
         data_[k] = v
 
@@ -161,13 +161,18 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
     return dict(Counter(fault_reasons))
 
 to_plot = np.zeros((len(l1_classes),len(l1_classes)))
+ttt = []
 for k, v in data.items():
     gold_label = v['Gold Level 1'][0]
     ###########################################################################################################
     predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=0.3, thresh2=0.01, k_val=5)
     ###########################################################################################################
+    ttt.append((gold_label, predicted))
     to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
     ###########################################################################################################
+
+pprint(Counter(ttt))
+exit()
 
 # sns.set(font_scale=2)
 # df = pd.DataFrame(to_plot, index = [i for i in l1_classes], columns = [i for i in l1_classes])
