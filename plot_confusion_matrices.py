@@ -4,6 +4,10 @@ from tqdm import tqdm
 import json
 from collections import Counter
 from nltk.tokenize import sent_tokenize
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
 
 ks = [
 'Class with score greater than thresh2 not found + Gold label found with score less than thresh 2',
@@ -32,21 +36,6 @@ print(len(data_), len(data))
 
 data = data_
 json.dump(data, open('C:\\Users\\dvpap\\Downloads\\venue_graph_fos_classification_fixed.json', 'w'))
-
-# import seaborn as sns
-# import pandas as pd
-# import matplotlib.pyplot as plt
-#
-# # plt.rcParams["figure.figsize"] = (10,10)
-# # plt.figure(figsize = (25,25))
-# sns.set(font_scale=2)
-# array = np.array(cm)
-# df = pd.DataFrame(array, index = [i for i in authorsNames], columns = [i for i in authorsNames])
-# fig, ax = plt.subplots()
-# plt.figure(figsize = (25,25))
-# plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-# plt.title('Confusion Matrix')
-# sns.heatmap(df, annot = True)
 
 l1_classes = [
     'engineering and technology',
@@ -171,18 +160,71 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
             #############################################################
     return dict(Counter(fault_reasons))
 
-found   = 0
-labels  = []
+to_plot = np.zeros((len(l1_classes),len(l1_classes)))
 for k, v in data.items():
     gold_label = v['Gold Level 1'][0]
     ###########################################################################################################
     predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=0.3, thresh2=0.01, k_val=5)
     ###########################################################################################################
-    print((predicted, gold_label))
-    if(predicted == gold_label):
-        found+=1
+    to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
     ###########################################################################################################
 
+# sns.set(font_scale=2)
+# df = pd.DataFrame(to_plot, index = [i for i in l1_classes], columns = [i for i in l1_classes])
+# fig, ax = plt.subplots()
+# plt.figure(figsize = (25,25))
+# plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+# plt.title('Confusion Matrix')
+# sns.heatmap(df, annot = True)
+
+import plotly.figure_factory as ff
+
+def plot_confusion_matrix(data_to_plot, labels):
+    x = labels
+    y = labels
+    z = data_to_plot
+    # change each element of z to type string for annotations
+    z_text = [[str(y) for y in x] for x in z]
+    # set up figure
+    fig = ff.create_annotated_heatmap(z, x=x, y=y, annotation_text=z_text, colorscale='Viridis')
+    # add title
+    fig.update_layout(
+        title_text='<i><b>Confusion matrix</b></i>',
+        #xaxis = dict(title='x'),
+        #yaxis = dict(title='x')
+    )
+    # add custom xaxis title
+    fig.add_annotation(
+        dict(
+            font=dict(color="black",size=14),
+            x=0.5,
+            y=-0.15,
+            showarrow=False,
+            text="Predicted value",
+            xref="paper",
+            yref="paper"
+        )
+    )
+    # add custom yaxis title
+    fig.add_annotation(
+        dict(
+            font=dict(color="black",size=14),
+            x=-0.35,
+            y=0.5,
+            showarrow=False,
+            text="Real value",
+            textangle=-90,
+            xref="paper",
+            yref="paper"
+        )
+    )
+    # adjust margins to make room for yaxis title
+    fig.update_layout(margin=dict(t=50, l=200))
+    # add colorbar
+    fig['data'][0]['showscale'] = True
+    fig.show()
+    fig.write_html("clean_1class_confusion_matrix.html")
+
+plot_confusion_matrix(to_plot, l1_classes)
 
 
-print((found, len(data)))
