@@ -4,6 +4,17 @@ from tqdm import tqdm
 import json
 from collections import Counter
 
+ks = [
+'Class with score greater than thresh2 not found + Gold label found with score less than thresh 2',
+'Class with score greater than thresh2 not found + Gold label not found in predicted classes',
+'Selected a class that surpassed threshold 1 + Gold label found between thresh 1 and thresh 2',
+'Selected a class that surpassed threshold 1 + Gold label found with score less than thresh 2',
+'Selected a class that surpassed threshold 1 + Gold label not found in predicted classes',
+'Selected a class with score between threshold 1 and threshold 2 + Gold label found between thresh 1 and thresh 2',
+'Selected a class with score between threshold 1 and threshold 2 + Gold label found with score less than thresh 2',
+'Selected a class with score between threshold 1 and threshold 2 + Gold label not found in predicted classes'
+]
+
 data = json.load(open('C:\\Users\\dvpap\\Downloads\\venue_graph_fos_classification.json'))
 
 l1_classes = [
@@ -125,6 +136,9 @@ best_thres  = -1.0
 best_thres2  = -1.0
 best_k      = -1.0
 best_score  = -1.0
+
+fp = open('outs.txt','w')
+
 for k in range(5,6):
     for thr in range(50,100):
         for thr2 in range(1,thr):
@@ -135,17 +149,25 @@ for k in range(5,6):
                 best_thres2     = thr2
                 best_k          = k
             reasons = get_reasons(thresh1=float(thr)/100.0, thresh2=float(thr2)/100.0, k_val=k)
-            print(
-                k,
-                thr,
-                thr2,
-                agrees_sotiris_gold,
-                reasons['Selected a class that surpassed threshold 1 + Gold label found between thresh 1 and thresh 2'],
-                reasons['Selected a class that surpassed threshold 1 + Gold label found with score less than thresh 2'],
-                reasons['Selected a class that surpassed threshold 1 + Gold label not found in predicted classes'],
-                reasons['Selected a class with score between threshold 1 and threshold 2 + Gold label found between thresh 1 and thresh 2'],
-                reasons['Selected a class with score between threshold 1 and threshold 2 + Gold label not found in predicted classes']
+            tttt= [rs for rs in reasons if rs not in ks]
+            if(len(tttt)):
+                print(tttt)
+            fp.write(
+                ' '.join([
+                    k,
+                    thr,
+                    thr2,
+                    agrees_sotiris_gold,
+                    ' '.join(str(reasons[k]) if k in reasons else '0' for k in ks)
+                ]) + '\n'
+                # reasons['Selected a class that surpassed threshold 1 + Gold label found between thresh 1 and thresh 2'],
+                # reasons['Selected a class that surpassed threshold 1 + Gold label found with score less than thresh 2'],
+                # reasons['Selected a class that surpassed threshold 1 + Gold label not found in predicted classes'],
+                # reasons['Selected a class with score between threshold 1 and threshold 2 + Gold label found between thresh 1 and thresh 2'],
+                # reasons['Selected a class with score between threshold 1 and threshold 2 + Gold label not found in predicted classes']
             )
+
+fp.close()
 
 print(best_k)
 print(best_thres)
