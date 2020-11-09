@@ -32,7 +32,7 @@ for k, v in data.items():
     ):
         data_[k] = v
 
-print(len(data_), len(data))
+# print(len(data_), len(data))
 
 data = data_
 json.dump(data, open('C:\\Users\\dvpap\\Downloads\\venue_graph_fos_classification_fixed.json', 'w'))
@@ -44,6 +44,45 @@ l1_classes = [
     'natural sciences',
     'humanities',
     'medical and health sciences'
+]
+
+l2_classes = [
+'/natural sciences/biological sciences',
+'/medical and health sciences/health sciences',
+'/natural sciences/computer and information sciences',
+'/natural sciences/chemical sciences',
+'/natural sciences/physical sciences',
+'/engineering and technology/electrical engineering electronic engineering information engineering',
+'/natural sciences/earth and related environmental sciences',
+'/natural sciences/mathematics',
+'/engineering and technology/materials engineering',
+'/engineering and technology/mechanical engineering',
+'/agricultural sciences/agriculture forestry and fisheries',
+'/social sciences/psychology',
+'/social sciences/economics and business',
+'/engineering and technology/environmental engineering',
+'/engineering and technology/nanotechnology',
+'/social sciences/law',
+'/medical and health sciences/basic medicine',
+'/social sciences/sociology',
+'/social sciences/media and communications',
+'/humanities/philosophy ethics and religion',
+'/humanities/arts',
+'/social sciences/political science',
+'/humanities/languages and literature',
+'/humanities/history and archaeology',
+'/engineering and technology/civil engineering',
+'/agricultural sciences/animal and dairy science',
+'/social sciences/educational sciences',
+'/medical and health sciences/clinical medicine',
+'/agricultural sciences/veterinary science',
+'/engineering and technology/chemical engineering',
+'/engineering and technology/industrial biotechnology',
+'/medical and health sciences/medical biotechnology',
+'/engineering and technology/environmental biotechnology',
+'/agricultural sciences/agricultural biotechnology',
+'/social sciences/social and economic geography',
+'/engineering and technology/medical engineering'
 ]
 
 res = {}
@@ -75,6 +114,33 @@ def decide(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
         reason      = 1
     else:
         ret_label   = Counter([t[0].split('/')[1] for t in sot_l1_abov_thr2]).most_common(1)
+        if(len(ret_label) == 0):
+            ret_label   = ''
+            reason      = 3
+        else:
+            ret_label   = ret_label[0][0]
+            reason      = 2
+    return ret_label, reason, labels_above, labels_below, labels_k_rej
+
+def decideL2(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
+    ###################################################
+    sot_l1                  = sorted(v['Level 2 Classifier Prediction'], key=lambda x: float(x[1]), reverse=True)    # [:k_val]
+    ###################################################
+    sot_l1_top              = sot_l1[0]
+    sot_l1_abov_thr2        = [t_ for t_ in sot_l1 if(float(t_[1])>=thresh2)][:k_val]
+    sot_l1_abov_thr2_k_rej  = [t_ for t_ in sot_l1 if(float(t_[1])>=thresh2)][k_val:]
+    sot_l1_below_thr2       = [t_ for t_ in sot_l1 if(float(t_[1])<thresh2)]
+    labels_above            = [t[0] for t in sot_l1_abov_thr2]
+    labels_below            = [t[0] for t in sot_l1_below_thr2]
+    labels_k_rej            = [t[0] for t in sot_l1_abov_thr2_k_rej]
+    ###################################################
+    if (float(sot_l1_top[1]) >= thresh1):
+        ret_label       = sot_l1_top[0]
+        reason          = 1
+    else:
+        ret_label       = Counter([t[0].split('/')[1] for t in sot_l1_abov_thr2]).most_common(1)
+        print(ret_label)
+        exit()
         if(len(ret_label) == 0):
             ret_label   = ''
             reason      = 3
@@ -160,24 +226,27 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
             #############################################################
     return dict(Counter(fault_reasons))
 
-to_plot = np.zeros((len(l1_classes),len(l1_classes)))
+# to_plot = np.zeros((len(l1_classes),len(l1_classes)))
+to_plot = np.zeros((len(l2_classes),len(l2_classes)))
 ttt = []
+ttt2 = []
 for k, v in data.items():
     gold_label = v['Gold Level 1'][0]
     ###########################################################################################################
-    predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=0.3, thresh2=0.01, k_val=5)
+    predicted, reason, labels_above, labels_below, labels_k_rej = decideL2(v, thresh1=0.3, thresh2=0.01, k_val=5)
     if (predicted != gold_label):
         labs = set([t.split('/')[1] for t in labels_above])
         labs.update(set([t.split('/')[1] for t in labels_below]))
         labs.update(set([t.split('/')[1] for t in labels_k_rej]))
         if(gold_label not in labs):
-            print(gold_label)
+            ttt2.append(gold_label)
     ###########################################################################################################
     ttt.append((gold_label, predicted))
-    to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
+    # to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
+    to_plot[l2_classes.index(gold_label), l2_classes.index(predicted)] += 1
     ###########################################################################################################
 
-# pprint(Counter(ttt))
+pprint(Counter(ttt2))
 
 # exit()
 
@@ -189,6 +258,7 @@ for k, v in data.items():
 # plt.title('Confusion Matrix')
 # sns.heatmap(df, annot = True)
 
+# import plotly.offline.iplot
 import plotly.figure_factory as ff
 
 def plot_confusion_matrix(data_to_plot, labels):
@@ -234,7 +304,7 @@ def plot_confusion_matrix(data_to_plot, labels):
     fig.update_layout(margin=dict(t=50, l=200))
     # add colorbar
     fig['data'][0]['showscale'] = True
-    fig.show()
+    # fig.show()
     fig.write_html("clean_1class_confusion_matrix.html")
 
 plot_confusion_matrix(to_plot, l1_classes)
