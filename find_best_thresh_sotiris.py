@@ -3,6 +3,7 @@ from pprint import pprint
 from tqdm import tqdm
 import json
 from collections import Counter
+from nltk.tokenize import sent_tokenize
 
 ks = [
 'Class with score greater than thresh2 not found + Gold label found with score less than thresh 2',
@@ -109,6 +110,11 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
         predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=thresh1, thresh2=thresh2, k_val=k_val)
         #############################################################
         if (predicted not in gold_labels):
+            # if(
+            #     len(sent_tokenize(v[''])) <5
+            # ):
+            #     continue
+            #############################################################
             labels_above = [t.split('/')[1] for t in labels_above]
             labels_below = [t.split('/')[1] for t in labels_below]
             labels_k_rej = [t.split('/')[1] for t in labels_k_rej]
@@ -125,7 +131,11 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
             if(reason == 1):
                 fault_reasons.append('Selected a class that surpassed threshold 1 + '+r2)
             elif(reason == 2):
-                fault_reasons.append('Selected a class with score between threshold 1 and threshold 2 + '+r2)
+                reas = 'Selected a class with score between threshold 1 and threshold 2 + '+r2
+                if(reas == 'Selected a class with score between threshold 1 and threshold 2 + Gold label found between thresh 1 and thresh 2'):
+                    print(k)
+                    # exit()
+                fault_reasons.append(reas)
             elif(reason == 3):
                 fault_reasons.append('Class with score greater than thresh2 not found + '+r2)
             #############################################################
@@ -140,7 +150,7 @@ best_score  = -1.0
 fp = open('outs.txt','w')
 
 for k in range(5,6):
-    for thr in tqdm(range(50,100)):
+    for thr in tqdm(range(30,100)):
         for thr2 in range(1,thr):
             agrees_sotiris_gold = do_for_thesh_kmax(thresh1 = float(thr)/100.0, thresh2 = float(thr2)/100.0, k_val=k, use_normalization=-1)
             if(agrees_sotiris_gold>best_score):
