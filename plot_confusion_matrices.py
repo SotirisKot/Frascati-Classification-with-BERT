@@ -12,7 +12,7 @@ import plotly.figure_factory as ff
 
 def plot_confusion_matrix(data_to_plot, labels, name):
     x = []# [t.split('/')[-1] for t in labels]
-    y = []# [t.split('/')[-1] for t in labels]
+    y = [t.split('/')[-1] for t in labels]
     z = data_to_plot
     # change each element of z to type string for annotations
     z_text = [[str(y) for y in x] for x in z]
@@ -282,12 +282,10 @@ for k in l1_classes:
         'total'                         : 0
     }
 
-# to_plot = np.zeros((len(l1_classes),len(l1_classes)))
-to_plot = np.zeros((len(l2_classes),len(l2_classes)))
+to_plot = np.zeros((len(l2_classes),len(l2_classes)), dtype=int)
 ttt = []
 ttt2 = []
 for k, v in data.items():
-    # gold_label = v['Gold Level 1'][0]
     gold_label = v['Gold Level 2'][0]
     ###########################################################################################################
     predicted, reason, labels_above, labels_below, labels_k_rej = decideL2(v, thresh1=0.3, thresh2=0.01, k_val=5)
@@ -299,7 +297,6 @@ for k, v in data.items():
             ttt2.append(gold_label)
     ###########################################################################################################
     ttt.append((gold_label, predicted))
-    # to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
     to_plot[l2_classes.index(gold_label), l2_classes.index(predicted)] += 1
     ###########################################################################################################
 
@@ -309,7 +306,7 @@ plot_confusion_matrix(to_plot, l2_classes, name='clean_2class_confusion_matrix')
 
 #####################################################################################################
 
-to_plot = np.zeros((len(l1_classes),len(l1_classes)))
+to_plot = np.zeros((len(l1_classes),len(l1_classes)), dtype=int)
 ttt = []
 for k, v in data.items():
     gold_label = v['Gold Level 1'][0]
