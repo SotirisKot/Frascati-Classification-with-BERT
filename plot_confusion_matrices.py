@@ -166,6 +166,12 @@ for k, v in data.items():
     gold_label = v['Gold Level 1'][0]
     ###########################################################################################################
     predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=0.3, thresh2=0.01, k_val=5)
+    if (predicted != gold_label):
+        labs = set([t.split('/')[1] for t in labels_above])
+        labs.update(set([t.split('/')[1] for t in labels_below]))
+        labs.update(set([t.split('/')[1] for t in labels_k_rej]))
+        if(gold_label not in labs):
+            print(gold_label)
     ###########################################################################################################
     ttt.append((gold_label, predicted))
     to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
