@@ -8,6 +8,64 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.figure_factory as ff
+
+def plot_confusion_matrix(data_to_plot, labels, name):
+    x = []# [t.split('/')[-1] for t in labels]
+    y = []# [t.split('/')[-1] for t in labels]
+    z = data_to_plot
+    # change each element of z to type string for annotations
+    z_text = [[str(y) for y in x] for x in z]
+    ######################################################################################################
+    hovertext = list()
+    for i in range(len(labels)):
+        hovertext.append(list())
+        for j in range(len(labels)):
+            hovertext[-1].append('gold: {}<br />predicted: {}<br />Z: {}'.format(labels[i], labels[j], z[i][j]))
+    ######################################################################################################
+    # set up figure
+    fig = ff.create_annotated_heatmap(
+        z,
+        x=x,
+        y=y,
+        # annotation_text=z_text,
+        colorscale='Viridis',
+        hoverinfo='text',
+        text=hovertext
+    )
+    # add title
+    fig.update_layout(title_text='<i><b>Confusion matrix</b></i>')
+    # add custom xaxis title
+    fig.add_annotation(
+        dict(
+            font=dict(color="black",size=14),
+            x=0.5,
+            y=-0.15,
+            showarrow=False,
+            text="Predicted value",
+            xref="paper",
+            yref="paper"
+        )
+    )
+    # add custom yaxis title
+    fig.add_annotation(
+        dict(
+            font=dict(color="black",size=14),
+            x=-0.35,
+            y=0.5,
+            showarrow=False,
+            text="Real value",
+            textangle=-90,
+            xref="paper",
+            yref="paper"
+        )
+    )
+    # adjust margins to make room for yaxis title
+    fig.update_layout(margin=dict(t=50, l=200))
+    # add colorbar
+    fig['data'][0]['showscale'] = True
+    # fig.show()
+    fig.write_html("{}.html".format(name))
 
 ks = [
 'Class with score greater than thresh2 not found + Gold label found with score less than thresh 2',
@@ -31,71 +89,6 @@ for k, v in data.items():
         len(v['Gold Level 2']) == 1
     ):
         data_[k] = v
-
-# print(len(data_), len(data))
-
-data = data_
-json.dump(data, open('C:\\Users\\dvpap\\Downloads\\venue_graph_fos_classification_fixed.json', 'w'))
-
-l1_classes = [
-    'engineering and technology',
-    'social sciences',
-    'agricultural sciences',
-    'natural sciences',
-    'humanities',
-    'medical and health sciences'
-]
-
-l2_classes = [
-'/natural sciences/biological sciences',
-'/medical and health sciences/health sciences',
-'/natural sciences/computer and information sciences',
-'/natural sciences/chemical sciences',
-'/natural sciences/physical sciences',
-'/engineering and technology/electrical engineering electronic engineering information engineering',
-'/natural sciences/earth and related environmental sciences',
-'/natural sciences/mathematics',
-'/engineering and technology/materials engineering',
-'/engineering and technology/mechanical engineering',
-'/agricultural sciences/agriculture forestry and fisheries',
-'/social sciences/psychology',
-'/social sciences/economics and business',
-'/engineering and technology/environmental engineering',
-'/engineering and technology/nanotechnology',
-'/social sciences/law',
-'/medical and health sciences/basic medicine',
-'/social sciences/sociology',
-'/social sciences/media and communications',
-'/humanities/philosophy ethics and religion',
-'/humanities/arts',
-'/social sciences/political science',
-'/humanities/languages and literature',
-'/humanities/history and archaeology',
-'/engineering and technology/civil engineering',
-'/agricultural sciences/animal and dairy science',
-'/social sciences/educational sciences',
-'/medical and health sciences/clinical medicine',
-'/agricultural sciences/veterinary science',
-'/engineering and technology/chemical engineering',
-'/engineering and technology/industrial biotechnology',
-'/medical and health sciences/medical biotechnology',
-'/engineering and technology/environmental biotechnology',
-'/agricultural sciences/agricultural biotechnology',
-'/social sciences/social and economic geography',
-'/engineering and technology/medical engineering'
-]
-
-res = {}
-for k in l1_classes:
-    res[k] = {
-        'agrees_nikos_sotiris'          : 0,
-        'agrees_nikos_gold'             : 0,
-        'agrees_sotiris_gold'           : 0,
-        'agrees_both_gold'              : 0,
-        'agrees_nikos_missed_sotiris'   : 0,
-        'agrees_sotiris_missed_nikos'   : 0,
-        'total'                         : 0
-    }
 
 def decide(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
     ###################################################
@@ -224,6 +217,71 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
             #############################################################
     return dict(Counter(fault_reasons))
 
+# print(len(data_), len(data))
+
+data = data_
+json.dump(data, open('C:\\Users\\dvpap\\Downloads\\venue_graph_fos_classification_fixed.json', 'w'))
+
+l1_classes = [
+    'engineering and technology',
+    'social sciences',
+    'agricultural sciences',
+    'natural sciences',
+    'humanities',
+    'medical and health sciences'
+]
+
+l2_classes = sorted([
+'/natural sciences/biological sciences',
+'/medical and health sciences/health sciences',
+'/natural sciences/computer and information sciences',
+'/natural sciences/chemical sciences',
+'/natural sciences/physical sciences',
+'/engineering and technology/electrical engineering electronic engineering information engineering',
+'/natural sciences/earth and related environmental sciences',
+'/natural sciences/mathematics',
+'/engineering and technology/materials engineering',
+'/engineering and technology/mechanical engineering',
+'/agricultural sciences/agriculture forestry and fisheries',
+'/social sciences/psychology',
+'/social sciences/economics and business',
+'/engineering and technology/environmental engineering',
+'/engineering and technology/nanotechnology',
+'/social sciences/law',
+'/medical and health sciences/basic medicine',
+'/social sciences/sociology',
+'/social sciences/media and communications',
+'/humanities/philosophy ethics and religion',
+'/humanities/arts',
+'/social sciences/political science',
+'/humanities/languages and literature',
+'/humanities/history and archaeology',
+'/engineering and technology/civil engineering',
+'/agricultural sciences/animal and dairy science',
+'/social sciences/educational sciences',
+'/medical and health sciences/clinical medicine',
+'/agricultural sciences/veterinary science',
+'/engineering and technology/chemical engineering',
+'/engineering and technology/industrial biotechnology',
+'/medical and health sciences/medical biotechnology',
+'/engineering and technology/environmental biotechnology',
+'/agricultural sciences/agricultural biotechnology',
+'/social sciences/social and economic geography',
+'/engineering and technology/medical engineering'
+])
+
+res = {}
+for k in l1_classes:
+    res[k] = {
+        'agrees_nikos_sotiris'          : 0,
+        'agrees_nikos_gold'             : 0,
+        'agrees_sotiris_gold'           : 0,
+        'agrees_both_gold'              : 0,
+        'agrees_nikos_missed_sotiris'   : 0,
+        'agrees_sotiris_missed_nikos'   : 0,
+        'total'                         : 0
+    }
+
 # to_plot = np.zeros((len(l1_classes),len(l1_classes)))
 to_plot = np.zeros((len(l2_classes),len(l2_classes)))
 ttt = []
@@ -247,77 +305,27 @@ for k, v in data.items():
 
 pprint(Counter(ttt2))
 
-# exit()
+plot_confusion_matrix(to_plot, l2_classes, name='clean_2class_confusion_matrix')
 
-# sns.set(font_scale=2)
-# df = pd.DataFrame(to_plot, index = [i for i in l1_classes], columns = [i for i in l1_classes])
-# fig, ax = plt.subplots()
-# plt.figure(figsize = (25,25))
-# plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-# plt.title('Confusion Matrix')
-# sns.heatmap(df, annot = True)
+#####################################################################################################
 
-# import plotly.offline.iplot
-import plotly.figure_factory as ff
+to_plot = np.zeros((len(l1_classes),len(l1_classes)))
+ttt = []
+for k, v in data.items():
+    gold_label = v['Gold Level 1'][0]
+    ###########################################################################################################
+    predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=0.3, thresh2=0.01, k_val=5)
+    if (predicted != gold_label):
+        labs = set([t.split('/')[1] for t in labels_above])
+        labs.update(set([t.split('/')[1] for t in labels_below]))
+        labs.update(set([t.split('/')[1] for t in labels_k_rej]))
+        if(gold_label not in labs):
+            ttt2.append(gold_label)
+    ###########################################################################################################
+    ttt.append((gold_label, predicted))
+    to_plot[l1_classes.index(gold_label), l1_classes.index(predicted)] += 1
+    ###########################################################################################################
 
-def plot_confusion_matrix(data_to_plot, labels):
-    x = []# [t.split('/')[-1] for t in labels]
-    y = []# [t.split('/')[-1] for t in labels]
-    z = data_to_plot
-    # change each element of z to type string for annotations
-    z_text = [[str(y) for y in x] for x in z]
-    ######################################################################################################
-    hovertext = list()
-    for i in range(len(labels)):
-        hovertext.append(list())
-        for j in range(len(labels)):
-            hovertext[-1].append('gold: {}<br />predicted: {}<br />Z: {}'.format(labels[i], labels[j], z[i][j]))
-    ######################################################################################################
-    # set up figure
-    fig = ff.create_annotated_heatmap(
-        z,
-        x=x,
-        y=y,
-        # annotation_text=z_text,
-        colorscale='Viridis',
-        hoverinfo='text',
-        text=hovertext
-    )
-    # add title
-    fig.update_layout(title_text='<i><b>Confusion matrix</b></i>')
-    # add custom xaxis title
-    fig.add_annotation(
-        dict(
-            font=dict(color="black",size=14),
-            x=0.5,
-            y=-0.15,
-            showarrow=False,
-            text="Predicted value",
-            xref="paper",
-            yref="paper"
-        )
-    )
-    # add custom yaxis title
-    fig.add_annotation(
-        dict(
-            font=dict(color="black",size=14),
-            x=-0.35,
-            y=0.5,
-            showarrow=False,
-            text="Real value",
-            textangle=-90,
-            xref="paper",
-            yref="paper"
-        )
-    )
-    # adjust margins to make room for yaxis title
-    fig.update_layout(margin=dict(t=50, l=200))
-    # add colorbar
-    fig['data'][0]['showscale'] = True
-    # fig.show()
-    fig.write_html("clean_1class_confusion_matrix.html")
-
-# plot_confusion_matrix(to_plot, l1_classes)
-plot_confusion_matrix(to_plot, l2_classes)
+plot_confusion_matrix(to_plot, l1_classes, name='clean_1class_confusion_matrix')
 
 
