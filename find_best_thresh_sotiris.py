@@ -24,8 +24,7 @@ for k in l1_classes:
         'agrees_sotiris_gold'           : 0,
         'agrees_both_gold'              : 0,
         'agrees_nikos_missed_sotiris'   : 0,
-        'agrees_sotiris_missed_nikos'   : 0,
-        'total'                         : 0
+        'agrees_sotiris_missed_nikos'   : 0
     }
 
 # conf_mat_sot = np.zeros((len(l1_classes), len(l1_classes)))
@@ -39,8 +38,6 @@ agrees_nikos_missed_sotiris = 0
 agrees_sotiris_missed_nikos = 0
 for k, v in data.items():
     gold_l1     = v['Gold Level 1']
-    for c in gold_l1:
-        res[c]['total'] += 1
     # sot_l1      = v['Level 1 Max Voting Prediction']
     sot_l1      = max(
         v['Level 2 Classifier Prediction'],
@@ -91,7 +88,7 @@ print(agrees_sotiris_missed_nikos)
 print(both_missed)
 print(len(data))
 
-# exit()
+exit()
 
 pprint(res)
 
