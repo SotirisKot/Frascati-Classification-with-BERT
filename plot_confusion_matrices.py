@@ -139,13 +139,12 @@ def decideL2(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
         reason          = 1
     else:
         ret_label       = Counter([t[0].split('/')[1] for t in sot_l1_abov_thr2]).most_common(1)
-        print(ret_label)
-        exit()
         if(len(ret_label) == 0):
             ret_label   = ''
             reason      = 3
         else:
             ret_label   = ret_label[0][0]
+            ret_label   = max([t for t in sot_l1_abov_thr2 if t[0].startswith('/'+ret_label)], key=lambda x:x[1])[0]
             reason      = 2
     return ret_label, reason, labels_above, labels_below, labels_k_rej
 
@@ -219,7 +218,6 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
                 reas = 'Selected a class with score between threshold 1 and threshold 2 + '+r2
                 if(reas == 'Selected a class with score between threshold 1 and threshold 2 + Gold label found between thresh 1 and thresh 2'):
                     print(k)
-                    # exit()
                 fault_reasons.append(reas)
             elif(reason == 3):
                 fault_reasons.append('Class with score greater than thresh2 not found + '+r2)
@@ -231,7 +229,8 @@ to_plot = np.zeros((len(l2_classes),len(l2_classes)))
 ttt = []
 ttt2 = []
 for k, v in data.items():
-    gold_label = v['Gold Level 1'][0]
+    # gold_label = v['Gold Level 1'][0]
+    gold_label = v['Gold Level 2'][0]
     ###########################################################################################################
     predicted, reason, labels_above, labels_below, labels_k_rej = decideL2(v, thresh1=0.3, thresh2=0.01, k_val=5)
     if (predicted != gold_label):
@@ -266,14 +265,21 @@ def plot_confusion_matrix(data_to_plot, labels):
     y = labels
     z = data_to_plot
     # change each element of z to type string for annotations
-    z_text = [[str(y) for y in x] for x in z]
+    z_text = [
+        [str(y) for y in x]
+        for x in z
+    ]
     # set up figure
-    fig = ff.create_annotated_heatmap(z, x=x, y=y, annotation_text=z_text, colorscale='Viridis')
+    fig = ff.create_annotated_heatmap(
+        z,
+        x=x,
+        y=y,
+        annotation_text=z_text,
+        colorscale='Viridis'
+    )
     # add title
     fig.update_layout(
-        title_text='<i><b>Confusion matrix</b></i>',
-        #xaxis = dict(title='x'),
-        #yaxis = dict(title='x')
+        title_text='<i><b>Confusion matrix</b></i>'
     )
     # add custom xaxis title
     fig.add_annotation(
@@ -307,6 +313,7 @@ def plot_confusion_matrix(data_to_plot, labels):
     # fig.show()
     fig.write_html("clean_1class_confusion_matrix.html")
 
-plot_confusion_matrix(to_plot, l1_classes)
+# plot_confusion_matrix(to_plot, l1_classes)
+plot_confusion_matrix(to_plot, l2_classes)
 
 
