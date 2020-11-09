@@ -171,27 +171,18 @@ def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
             #############################################################
     return dict(Counter(fault_reasons))
 
-print(len(data))
-best_thres  = -1.0
-best_thres2  = -1.0
-best_k      = -1.0
-best_score  = -1.0
+found   = 0
+labels  = []
+for k, v in data.items():
+    gold_label = v['Gold Level 1'][0]
+    ###########################################################################################################
+    predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=0.3, thresh2=0.01, k_val=5)
+    ###########################################################################################################
+    print((predicted, gold_label))
+    if(predicted == gold_label):
+        found+=1
+    ###########################################################################################################
 
-for k in range(5,6):
-    for thr in tqdm(range(30,100)):
-        for thr2 in range(1,thr):
-            agrees_sotiris_gold = do_for_thesh_kmax(thresh1 = float(thr)/100.0, thresh2 = float(thr2)/100.0, k_val=k, use_normalization=-1)
-            if(agrees_sotiris_gold>best_score):
-                best_score      = agrees_sotiris_gold
-                best_thres      = thr
-                best_thres2     = thr2
-                best_k          = k
-            reasons = get_reasons(thresh1=float(thr)/100.0, thresh2=float(thr2)/100.0, k_val=k)
-            tttt= [rs for rs in reasons if rs not in ks]
-            if(len(tttt)):
-                print(tttt)
 
-print(best_k)
-print(best_thres)
-print(best_score)
-print(len(data))
+
+print((found, len(data)))
