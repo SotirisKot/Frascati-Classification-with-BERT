@@ -50,6 +50,7 @@ def decide(v, thresh1 = 0.33, thresh2 = 0.0, k_val=5):
     else:
         sot_l1 = ''
         reason = 3
+        score = -1
     return sot_l1, reason, score
 
 def min_max_normalize(dddd):
@@ -74,6 +75,7 @@ def do_for_thesh_kmax(thresh1 = 0.5, thresh2 = 0.2, k_val=5, use_normalization=1
     # print('thr1:{} thr2:{}'.format(thresh1, thresh2))
     agrees_sotiris_gold = 0
     for k, v in data.items():
+        # gold_l1 = v['Gold Level 2']
         gold_l1 = v['Gold Level 1']
         for c in gold_l1:
             res[c]['total'] += 1
@@ -83,7 +85,7 @@ def do_for_thesh_kmax(thresh1 = 0.5, thresh2 = 0.2, k_val=5, use_normalization=1
         elif(use_normalization == 2):
             v['Level 2 Classifier Prediction'] = sum_div_normalize(v['Level 2 Classifier Prediction'])
         #################################################################
-        sot_l1, reason = decide(v, thresh1 = thresh1, thresh2 = thresh2, k_val=k_val)
+        sot_l1, reason, _ = decide(v, thresh1 = thresh1, thresh2 = thresh2, k_val=k_val)
         #################################################################
         if (sot_l1 in gold_l1):
             agrees_sotiris_gold += 1
