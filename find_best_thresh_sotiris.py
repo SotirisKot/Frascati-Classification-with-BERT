@@ -51,8 +51,12 @@ def min_max_normalize(dddd):
     max_ = float(max(dddd, key=lambda x: float(x[1]))[1])
     min_ = float(min(dddd, key=lambda x: float(x[1]))[1])
     for ttt in dddd:
-        ttt[1] = (float(ttt[1]) - min_) / (max_ - min_)
-        ttt[1] = round(ttt[1], 4)
+        if(max_ == min_):
+            ttt[1] = 1 / len(dddd)
+            ttt[1] = round(ttt[1], 4)
+        else:
+            ttt[1] = (float(ttt[1]) - min_) / (max_ - min_)
+            ttt[1] = round(ttt[1], 4)
     return dddd
 
 def sum_div_normalize(dddd):
@@ -81,15 +85,13 @@ def do_for_thesh_kmax(thresh1 = 0.5, thresh2 = 0.2, k_val=5, use_normalization=1
             res[sot_l1]['agrees_sotiris_gold'] += 1
     return agrees_sotiris_gold
 
-
-
 for k, v in data.items():
     predicted = decide(v, thresh1=0.33, thresh2=0.0, k_val=5)
     if(predicted not in v['Gold Level 1']):
         if(len(v['Level 2 VenueGraph'])):
             print(k)
             pprint(v['Level 2 VenueGraph'])
-            pprint(sum_div_normalize(v['Level 2 VenueGraph']))
+            pprint(min_max_normalize(v['Level 2 VenueGraph']))
 
 exit()
 
