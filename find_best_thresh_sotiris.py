@@ -34,10 +34,10 @@ for k, v in data.items():
         res[c]['total'] += 1
     #################################################################
     sot_l1      = max(v['Level 2 Classifier Prediction'], key=lambda x:x[1]) # [0].split('/')[1]
-    if():
-
-    elif:
-
+    if(sot_l1[1] >= thresh1):
+        sot_l1 = sot_l1[0].split('/')[1]
+    elif (sot_l1[1] >= thresh2):
+        sot_l1 = ''
     else:
         sot_l1 = ''
     #################################################################
