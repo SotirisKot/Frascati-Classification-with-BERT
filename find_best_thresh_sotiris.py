@@ -94,42 +94,50 @@ def do_for_thesh_kmax(thresh1 = 0.5, thresh2 = 0.2, k_val=5, use_normalization=1
 def get_reasons(thresh1=0.33, thresh2=0.0, k_val=5):
     fault_reasons = []
     for k, v in data.items():
-        predicted, reason, _, _, _ = decide(v, thresh1=thresh1, thresh2=thresh2, k_val=k_val)
-        if (predicted not in v['Gold Level 1']):
-            fault_reasons.append(reason)
-    return Counter(fault_reasons)
+        gold_labels = v['Gold Level 1']
+        predicted, reason, labels_above, labels_below, labels_k_rej = decide(v, thresh1=thresh1, thresh2=thresh2, k_val=k_val)
+        #############################################################
+        if (predicted not in gold_labels):
+            labels_above = [t.split('/')[1] for t in labels_above]
+            labels_below = [t.split('/')[1] for t in labels_below]
+            labels_k_rej = [t.split('/')[1] for t in labels_k_rej]
+            #############################################################
+            if(any(gold_label in labels_above for gold_label in gold_labels)):
+                r2 = 'Gold label found between thresh 1 and thresh 2'
+            elif(any(gold_label in labels_k_rej for gold_label in gold_labels)):
+                r2 = 'Gold label found between thresh 1 and thresh 2 but rejected using k'
+            elif(any(gold_label in labels_below for gold_label in gold_labels)):
+                r2 = 'Gold label found with score less than thresh 2'
+            else:
+                r2 = 'Gold label not found in predicted classes'
+            #############################################################
+            if(reason == 1):
+                fault_reasons.append('Selected a class that surpassed threshold 1 + '+r2)
+            elif(reason == 2):
+                fault_reasons.append('Selected a class with score between threshold 1 and threshold 2 + '+r2)
+            elif(reason == 3):
+                fault_reasons.append('Class with score greater than thresh2 not found + '+r2)
+            #############################################################
+    return dict(Counter(fault_reasons))
 
+print(len(data))
 best_thres  = -1.0
 best_thres2  = -1.0
 best_k      = -1.0
 best_score  = -1.0
 for k in range(5,6):
-    for thr in range(40,100):
+    for thr in range(50,100):
         for thr2 in range(1,thr):
             agrees_sotiris_gold = do_for_thesh_kmax(thresh1 = float(thr)/100.0, thresh2 = float(thr2)/100.0, k_val=k, use_normalization=-1)
             if(agrees_sotiris_gold>best_score):
-                best_score  = agrees_sotiris_gold
-                best_thres  = thr
-                best_thres2  = thr2
-                best_k      = k
+                best_score      = agrees_sotiris_gold
+                best_thres      = thr
+                best_thres2     = thr2
+                best_k          = k
             print(k, thr, thr2, agrees_sotiris_gold)
-            print(get_reasons(thresh1=thr, thresh2=thr2, k_val=k))
+            pprint(get_reasons(thresh1=float(thr)/100.0, thresh2=float(thr2)/100.0, k_val=k))
 
 print(best_k)
 print(best_thres)
 print(best_score)
 print(len(data))
-
-exit()
-
-for k, v in data.items():
-    predicted, reason, _ = decide(v, thresh1=0.33, thresh2=0.0, k_val=5)
-    if(predicted not in v['Gold Level 1']):
-        if(len(v['Level 2 VenueGraph'])):
-            print(k)
-            pprint(v['Gold Level 1'])
-            pprint(v['Gold Level 2'])
-            # pprint(v['Level 2 VenueGraph'])
-            pprint(sum_div_normalize(v['Level 2 VenueGraph']))
-
-exit()
