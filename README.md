@@ -1,5 +1,5 @@
 # Frascati-Classification-with-BERT
-This is the code for a Frascati-Classifier using [SciBERT](https://github.com/allenai/scibert). A project for  ATHENA Research Center
+This is the code for a Frascati-Classifier using [SciBERT](https://github.com/allenai/scibert).
 
 Our task at hand is to classify publications based on the Frascati Classification Schema. 
 So given a publication, we want a classifier to decide the Research Area, that this paper belongs, with the research area belonging of course to the Frascati Schema.
